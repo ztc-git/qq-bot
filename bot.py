@@ -122,18 +122,6 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
             Plain('{}'.format(choice(a)))
         ]))
 
-    # if group.id == 870256396 :
-    #     if message.has(Image):
-    #         image = Image()
-    #         image.url = message.get(Image)[0].url
-    #         await app.sendGroupMessage(group, MessageChain(__root__=[
-    #             Plain('{}'.format(type(image.url))),
-    #             Image.fromNetworkAddress(image.url)
-    #         ]))
-    #     else:
-    #         await app.sendGroupMessage(group, MessageChain(__root__=[
-    #             Plain(message.asDisplay())
-    #         ]))
 
 
 
