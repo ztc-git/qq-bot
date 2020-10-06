@@ -7,6 +7,8 @@ from graia.application.message.elements.internal import Image, Plain
 from graia.application import GraiaMiraiApplication
 from init import bcc, app
 from db import *
+from text_writer import text_generator
+
 
 group_define = {}
 a = ['想我了就来找我，别弄得满手都是', '你摸摸我衣服，看我是不是做你男人的料', '你是无边的宇宙，我这颗小星球，就在你心中转动',
@@ -58,6 +60,7 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
                 data = [image.url]
             else:
                 data = msg[3]
+
             if msg[2] in define_data:
                 Msg = '定义覆盖成功'
             else:
@@ -109,6 +112,10 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
         await app.sendGroupMessage(group, MessageChain(__root__=[
             Plain('给爷爬！'),
         ]))
+    elif message.asDisplay().startswith('帅'):
+        await app.sendGroupMessage(group, MessageChain(__root__=[
+            Plain("帅？帅个屁")
+        ]))
 
     # 叫车功能模块
     if message.has(Image):
@@ -122,6 +129,29 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
             Plain('{}'.format(choice(a)))
         ]))
 
+    # 文章生成模块
+    if message.asDisplay().startswith('# 狗屁很通'):
+        msg = message.asDisplay().split(' ', 3)
+        if len(msg) == 2:
+            Msg = '写作文不写题目啊喂'
+        else:
+            Msg = text_generator(msg[2])
+        await app.sendGroupMessage(group, MessageChain(__root__=[
+            Plain(Msg)
+        ]))
+
+    # if group.id == 870256396 :
+    #     if message.has(Image):
+    #         image = Image()
+    #         image.url = message.get(Image)[0].url
+    #         await app.sendGroupMessage(group, MessageChain(__root__=[
+    #             Plain('{}'.format(type(image.url))),
+    #             Image.fromNetworkAddress(image.url)
+    #         ]))
+    #     else:
+    #         await app.sendGroupMessage(group, MessageChain(__root__=[
+    #             Plain(message.asDisplay())
+    #         ]))
 
 
 
