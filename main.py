@@ -8,7 +8,7 @@ from graia.application import GraiaMiraiApplication
 from init import bcc, app
 from db import *
 from text_writer import text_generator
-from config import FEATURES
+from config import *
 
 # 缓存
 group_define = {}
@@ -136,7 +136,7 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
             Plain(Msg)
         ]))
 
-    # if group.id == 870256396 :
+    # if group.id == GroupID:
     #     if message.has(Image):
     #         image = Image()
     #         image.url = message.get(Image)[0].url
