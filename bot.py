@@ -8,11 +8,11 @@ from graia.application import GraiaMiraiApplication
 from init import bcc, app
 from db import *
 from text_writer import text_generator
+from config import FEATURES
 
 
 group_define = {}
-a = ['想我了就来找我，别弄得满手都是', '你摸摸我衣服，看我是不是做你男人的料', '你是无边的宇宙，我这颗小星球，就在你心中转动',
-     '今晚来我家，我爸妈不在', '请你认真向风学学，怎么往我怀里钻']
+ 
 
 # 图片路径
 image_paths = []
@@ -116,6 +116,10 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
         await app.sendGroupMessage(group, MessageChain(__root__=[
             Plain("帅？帅个屁")
         ]))
+    elif message.asDisplay() == '# 查看功能':
+        await app.sendGroupMessage(group, MessageChain(__root__=[
+            Plain(FEATURES)
+        ]))
 
     # 叫车功能模块
     if message.has(Image):
@@ -124,10 +128,7 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
                 Image.fromLocalFile(choice(image_paths))
             ]))
 
-    if (group.id == 870256396) and message.asDisplay() == '妖小白':
-        await app.sendGroupMessage(group, MessageChain(__root__=[
-            Plain('{}'.format(choice(a)))
-        ]))
+
 
     # 文章生成模块
     if message.asDisplay().startswith('# 狗屁很通'):
@@ -139,6 +140,7 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
         await app.sendGroupMessage(group, MessageChain(__root__=[
             Plain(Msg)
         ]))
+
 
     # if group.id == 870256396 :
     #     if message.has(Image):
