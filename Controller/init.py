@@ -4,7 +4,6 @@ import asyncio
 from config import *
 
 
-
 loop = asyncio.get_event_loop()
 bcc = Broadcast(loop=loop)
 app = GraiaMiraiApplication(

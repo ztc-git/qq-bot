@@ -2,11 +2,10 @@ import os
 from random import choice
 from graia.application import Group, Friend
 from graia.application.entry import GroupMessage, FriendMessage
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Image, Plain
+from graia.application.message.elements.internal import Plain
 from graia.application import GraiaMiraiApplication
 from Controller.init import bcc, app
-from Model.db import DbModel
+from Controller.define_controller import *
 from Controller.text_writer import text_generator
 from config import *
 
@@ -35,77 +34,39 @@ async def friend_message_listener(app: GraiaMiraiApplication, friend: Friend):
 @bcc.receiver(GroupMessage, priority=2)
 async def group_message_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group):
     # 定义功能模块
-    db = DbModel(group.id)
-    define_data = db.read_define_from_file()  # 读取群内定义数据
-
+    define_func = DefineFunc(group.id)
     # 写入定义
     if message.asDisplay().startswith('# 定义'):
-        # msg = message.asDisplay().split(' ', 3)
-        # if len(msg) == 2:
-        #     await app.sendGroupMessage(group, MessageChain(__root__=[
-        #         Plain('? 定义啥你倒是说啊'),
-        #     ]))
-        # elif len(msg) == 3:
-        #     try:
-        #         del define_data[msg[2]]
-        #         Msg = '定义清除成功'
-        #     except KeyError:
-        #         Msg = '没有这个定义啊喂'
-        #     await app.sendGroupMessage(group, MessageChain(__root__=[
-        #         Plain(Msg)
-        #     ]))
-        # elif len(msg) == 4:
-        #     if message.has(Image):
-        #         image = Image()
-        #         image.url = message.get(Image)[0].url
-        #         data = [image.url]
-        #     else:
-        #         data = msg[3]
-        #
-        #     if msg[2] in define_data:
-        #         Msg = '定义覆盖成功'
-        #     else:
-        #         Msg = '定义成功'
-        #     define_data[msg[2]] = data
-        #
-        #     await app.sendGroupMessage(group, MessageChain(__root__=[
-        #         Plain(Msg),
-        #     ]))
-        db.write_define_to_file(define_data)
+        Msg = define_func.write_define(message)
+        await app.sendGroupMessage(group.id, MessageChain(__root__=[
+            Plain(Msg)
+        ]))
 
-    # 回复定义
-    try:
-        if message.asDisplay() in define_data:
-            if type(define_data[message.asDisplay()]) == list:
-                await app.sendGroupMessage(group, MessageChain(__root__=[
-                    Image.fromNetworkAddress(define_data[message.asDisplay()][0])
-                ]))
-            else:
-                await app.sendGroupMessage(group, MessageChain(__root__=[
-                    Plain(define_data[message.asDisplay()])
-                ]))
-    except KeyError:
-        pass
+
+    # # 回复定义
+    data = define_func.reply_definition_message(message)
+    if data:
+        if data[0]:
+            await app.sendGroupMessage(group.id, MessageChain(__root__=[
+                Image.fromNetworkAddress(data[1])
+            ]))
+        else:
+            await app.sendGroupMessage(group.id, MessageChain(__root__=[
+                Plain(data[1])
+            ]))
 
     # 查看定义列表
     if message.asDisplay() == '# 查看定义':
-        if define_data:
-            Msg = '本群所有定义：'
-            for key in define_data:
-                Msg = Msg + '\n' + key
-        else:
-            Msg = '暂无定义！'
-
+        Msg = define_func.look_through_definition_list()
         await app.sendGroupMessage(group, MessageChain(__root__=[
             Plain(Msg)
         ]))
 
     # 删除群内所有定义
     if message.asDisplay() == '# 删除定义':
-        define_data = {}
-        db.write_define_to_file(define_data)
+        Msg = define_func.delete_all_definition()
         await app.sendGroupMessage(group.id, MessageChain(__root__=[
-            Plain('所有定义清零成功')
+            Plain(Msg)
         ]))
 
 
@@ -138,6 +99,7 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
             Plain("你呜你🐎呢")
         ]))
 
+
     # 叫车功能模块
     if message.has(Image):
         if message[Image][0].imageId == '{61BB8091-C869-AE57-E0CA-6843B7CC13A9}.mirai':
@@ -156,18 +118,19 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
             Plain(Msg)
         ]))
 
-    # if group.id == GroupID:
-    #     if message.has(Image):
-    #         image = Image()
-    #         image.url = message.get(Image)[0].url
-    #         await app.sendGroupMessage(group, MessageChain(__root__=[
-    #             Plain('{}'.format(type(image.url))),
-    #             Image.fromNetworkAddress(image.url)
-    #         ]))
-    #     else:
-    #         await app.sendGroupMessage(group, MessageChain(__root__=[
-    #             Plain(message.asDisplay())
-    #         ]))
+    if group.id == GroupID:
+        if message.has(Image):
+            image = Image()
+            image.url = message.get(Image)[0].url
+            await app.sendGroupMessage(group, MessageChain(__root__=[
+                Plain('{}'.format(message)),
+                Image.fromNetworkAddress(image.url),
+                Plain('{}'.format(message.get(Plain)[0].text))
+            ]))
+        else:
+            await app.sendGroupMessage(group, MessageChain(__root__=[
+                Plain(message.asDisplay())
+            ]))
 
 
 if __name__ == '__main__':
